@@ -10,43 +10,60 @@ public class S {
     private double vertHeight;
     private double gapHeight;       // dependent on gapHeightFactor
 
-    // Fractal attributes
-    private boolean flipped;        // flip y and x axes for drawing
-    private int level;
+    // Draw attributes
+    private int center;
+    private int top;
+    private Direction dir;
 
     // public constructor for regular use
-    public S(Graphics2D g2, double hh, double hw, double vh, boolean flip) {
+    public S(Graphics2D g2, double hh, double hw, double vh) {
         hatHeight = hh;
         hatWidth = hw;
         vertHeight = vh;
         gapHeight = hatHeight * gapHeightFactor;
-        flipped = flip;
         g = g2;
 
-        level = 0;
-    }
-
-    // Fractal constructor with level parameter
-    public S(Graphics2D g2, double hh, double hw, double vh, boolean flip, int l) {
-        this(g2, hh, hw, vh, flip);
-
-        level = l;
+        center = 0;
+        top = 0;
     }
 
     public void draw(double x, double y) {
-        draw((int) Math.round(x), (int) Math.round(y));
+        draw(x, y, 0, Direction.DOWN);
+    }
+    
+    public void draw(int x, int y) {
+        draw(x, y, 0, Direction.DOWN);
     }
 
-    public void draw(int x, int y) {
-        int center;
-        int top;
+    public void draw(double x, double y, int level, Direction dir) {
+        draw((int) Math.round(x), (int) Math.round(y), level, dir);
+    }
 
-        if (flipped) {
-            center = y;
-            top = x;
-        } else {
-            center = x;
-            top = y;
+    public void draw(int x, int y, int level, Direction dir) {
+        // Set up draw attributes
+        this.dir = dir;
+
+        switch (dir) {
+            case DOWN: {
+                center = x;
+                top = y;
+                break;
+            }
+            case RIGHT: {
+                center = y;
+                top = x;
+                break;
+            }
+            case UP: {
+                center = x;
+                top = y;
+                break;
+            }
+            case LEFT: {
+                center = y;
+                top = x;    
+                break;
+            }
         }
 
         // calculate borders
@@ -87,20 +104,28 @@ public class S {
         drawLine(center, bottom, leftBorder, layer4);
         drawLine(center, bottom, rightBorder, layer4);
 
-        if (!isLeaf()) {      // must continue recursion
-            S newS = new S(g, hatWidth / 2, midY - layer2, vertHeight / 2, !flipped, level - 1);
-            newS.draw(rightMidX, midY);
+        if (level > 0) {      // must continue recursion
+            S newS = new S(g, hatWidth / 2, midY - layer2, vertHeight / 2);
+            newS.draw(rightMidX, midY, level - 1, dir.counterClockwise());
         }
     }
 
     private void drawLine(double x, double y, double x2, double y2) {
-        if (flipped)
-            g.drawLine((int) Math.round(y), (int) Math.round(x), (int) Math.round(y2), (int) Math.round(x2));
-        else
-            g.drawLine((int) Math.round(x), (int) Math.round(y), (int) Math.round(x2), (int) Math.round(y2));
-    }
-
-    private boolean isLeaf() {
-        return (level == 0);
+        switch (dir) {
+            case DOWN: {
+                g.drawLine((int) Math.round(x), (int) Math.round(y), (int) Math.round(x2), (int) Math.round(y2));
+                break;
+            }
+            case RIGHT: {
+                g.drawLine((int) Math.round(y), (int) Math.round(x), (int) Math.round(y2), (int) Math.round(x2));
+                break;
+            }
+            case UP: {
+                break;
+            }
+            case LEFT: {
+                break;
+            }
+        }
     }
 }
