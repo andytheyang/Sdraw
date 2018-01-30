@@ -42,90 +42,87 @@ public class S {
     public void draw(int x, int y, int level, Direction dir) {
         // Set up draw attributes
         this.dir = dir;
-
-        switch (dir) {
-            case DOWN: {
-                center = x;
-                top = y;
-                break;
-            }
-            case RIGHT: {
-                center = y;
-                top = x;
-                break;
-            }
-            case UP: {
-                center = x;
-                top = y;
-                break;
-            }
-            case LEFT: {
-                center = y;
-                top = x;    
-                break;
-            }
-        }
+        center = x;
+        top = y;
 
         // calculate borders
-        double leftBorder = center - hatWidth;
-        double rightBorder = center + hatWidth;
+        double leftBorder = 0 - hatWidth;
+        double rightBorder = hatWidth;
 
-        double layer1 = top + hatHeight;
+        double layer1 = hatHeight;
         double layer2 = layer1 + vertHeight;
         double layer3 = layer2 + gapHeight;
         double layer4 = layer3 + vertHeight;
         double bottom = layer4 + hatHeight;
 
-        double leftMidX = (leftBorder + center) / 2;
-        double rightMidX = (center + rightBorder) / 2;
+        double leftMidX = leftBorder / 2;
+        double rightMidX = rightBorder / 2;
         double midY = (layer2 + layer3) / 2;
         
         // draw the hat
-        drawLine(center, top, leftBorder, layer1);
-        drawLine(center, top, rightBorder, layer1);
+        drawLine(0, 0, leftBorder, layer1);
+        drawLine(0, 0, rightBorder, layer1);
 
         // draw first set of verticals
         drawLine(leftBorder, layer1, leftBorder, layer2);
-        drawLine(center, layer1, center, layer2);
+        drawLine(0, layer1, 0, layer2);
         drawLine(rightBorder, layer1, rightBorder, layer2);
 
         // draw gap zone
-        drawLine(leftBorder, layer2, center, layer3);
-        drawLine(center, layer2, rightBorder, layer3);
+        drawLine(leftBorder, layer2, 0, layer3);
+        drawLine(0, layer2, rightBorder, layer3);
         drawLine(leftBorder, layer3, leftMidX, midY);
         drawLine(rightBorder, layer2, rightMidX, midY);
 
         // draw second set of verticals
         drawLine(leftBorder, layer3, leftBorder, layer4);
-        drawLine(center, layer3, center, layer4);
+        drawLine(0, layer3, 0, layer4);
         drawLine(rightBorder, layer3, rightBorder, layer4);
 
         // draw bottom hat
-        drawLine(center, bottom, leftBorder, layer4);
-        drawLine(center, bottom, rightBorder, layer4);
+        drawLine(0, bottom, leftBorder, layer4);
+        drawLine(0, bottom, rightBorder, layer4);
 
         if (level > 0) {      // must continue recursion
             S newS = new S(g, hatWidth / 2, midY - layer2, vertHeight / 2);
-            newS.draw(rightMidX, midY, level - 1, dir.counterClockwise());
+
+            Coord right = new Coord(rightMidX, midY);
+            Coord rightTransformed = right.transform(center, top, dir);
+            newS.draw(rightTransformed.x, rightTransformed.y, level - 1, dir.counterClockwise());
+
+            Coord left = new Coord(leftMidX, midY);
+            Coord leftTransformed = left.transform(center, top, dir);
+            newS.draw(leftTransformed.x, leftTransformed.y, level - 1, dir.clockwise());            
+            
         }
     }
 
     private void drawLine(double x, double y, double x2, double y2) {
-        switch (dir) {
-            case DOWN: {
-                g.drawLine((int) Math.round(x), (int) Math.round(y), (int) Math.round(x2), (int) Math.round(y2));
-                break;
-            }
-            case RIGHT: {
-                g.drawLine((int) Math.round(y), (int) Math.round(x), (int) Math.round(y2), (int) Math.round(x2));
-                break;
-            }
-            case UP: {
-                break;
-            }
-            case LEFT: {
-                break;
-            }
-        }
+        Coord p1 = new Coord(x, y);
+        Coord p2 = new Coord(x2, y2);
+
+        Coord p1Transformed = p1.transform(center, top, dir);
+        Coord p2Transformed = p2.transform(center, top, dir);
+
+        g.drawLine((int) Math.round(p1Transformed.x), (int) Math.round(p1Transformed.y), (int) Math.round(p2Transformed.x), (int) Math.round(p2Transformed.y));
+
+        // switch (dir) {
+        //     case DOWN: {
+        //         g.drawLine(center + (int) Math.round(x), top + (int) Math.round(y), center + (int) Math.round(x2), top + (int) Math.round(y2));
+        //         break;
+        //     }
+        //     case RIGHT: {
+        //         g.drawLine(center + (int) Math.round(y), top + (int) Math.round(x), center + (int) Math.round(y2), top + (int) Math.round(x2));
+        //         break;
+        //     }
+        //     case UP: {
+        //         g.drawLine(center + (int) Math.round(x), top - (int) Math.round(y), center + (int) Math.round(x2), top - (int) Math.round(y2));
+        //         break;
+        //     }
+        //     case LEFT: {
+        //         g.drawLine(center - (int) Math.round(y), top + (int) Math.round(x), center - (int) Math.round(y2), top + (int) Math.round(x2));
+        //         break;
+        //     }
+        // }
     }
 }

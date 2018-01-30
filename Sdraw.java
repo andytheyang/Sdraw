@@ -37,9 +37,14 @@ public class Sdraw extends JPanel {
 
         g2.setColor(Color.white);
         
-        S s = new S(g2, 50, 75, 50);
+        S s = new S(g2, 150, 200, 300);
 
-        s.draw(100, 100, 0, Direction.DOWN);
+        s.draw(1000, 50, 6, Direction.DOWN);
+        // s.draw(200, 100, 0, Direction.RIGHT);
+        // s.draw(300, 150, 0, Direction.UP);
+        // s.draw(400, 200, 0, Direction.LEFT);
+
+        // g2.drawLine(100, 50, 400, 200);
         
         
 
